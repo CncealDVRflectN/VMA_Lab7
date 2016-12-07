@@ -75,6 +75,20 @@ public class Main {
             return result;
         }
 
+        public Vector mul(Vector vector) throws Exception {
+            if (columns != vector.getLength()) {
+                throw new Exception("Неверная матрица или вектор.");
+            }
+            Vector result = new Vector(vector.getLength());
+            for (int i = 0; i < lines; i++) {
+                result.vector[i] = 0;
+                for (int j = 0; j < columns; j++) {
+                    result.vector[i] += matrix[i][j] * vector.vector[j];
+                }
+            }
+            return result;
+        }
+
         public Matrix transpose() throws Exception {
             if (lines != columns) {
                 throw new Exception("Неверная матрица.");
@@ -100,13 +114,59 @@ public class Main {
             this.length = length;
             vector = new double[length];
         }
+
+        public int getLength() {
+            return length;
+        }
+
+        public void print(boolean exponent) {
+            for (double item : vector) {
+                if (exponent) {
+                    System.out.printf("%e\n", item);
+                } else {
+                    System.out.printf("%.5f\n", item);
+                }
+            }
+        }
+
+        public Vector subtract(Vector sub) throws Exception {
+            if (length != sub.getLength()) {
+                throw new Exception("Неверный вектор.");
+            }
+            Vector result = new Vector(length);
+            for (int i = 0; i < length; i++) {
+                result.vector[i] = this.vector[i] - sub.vector[i];
+            }
+            return result;
+        }
+
+        public Vector mul(double num) throws Exception {
+            Vector result = new Vector(length);
+            for (int i = 0; i < length; i++) {
+                result.vector[i] = this.vector[i] * num;
+            }
+            return result;
+        }
+
+        public double normI() {
+            double max = Math.abs(vector[0]);
+            for (int i = 1; i < length; i++) {
+                if (Math.abs(vector[i]) > max) {
+                    max = Math.abs(vector[i]);
+                }
+            }
+            return max;
+        }
     }
 
     private static Matrix A;
     private static final int n = 5;
+    private static double lambda = 0.780861;
 
     public static void main(String[] args) {
         double[] p;
+        Vector eigen;
+        Vector r;
         try {
             A = new Matrix(n, n);
             A.fillDefault();
@@ -121,6 +181,16 @@ public class Main {
                 System.out.format("%.5f", p[i]);
                 System.out.println();
             }
+            System.out.println();
+            eigen = findEigenvector(lambda, p);
+            System.out.println("Собственный вектор соответствующий максимальному собственному значению " + lambda + " :");
+            eigen.print(false);
+            System.out.println();
+            r = A.mul(eigen).subtract(eigen.mul(lambda));
+            System.out.println("Вектор невязки: ");
+            r.print(true);
+            System.out.println();
+            System.out.println("Норма вектора невязки: " + r.normI());
         } catch (Exception e) {
             e.printStackTrace();
         }
