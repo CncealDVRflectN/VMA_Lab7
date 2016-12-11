@@ -192,7 +192,7 @@ public class Main {
             System.out.print("Невязка Pn: ");
             System.out.format("%e\n", det - p[n - 1]);
             System.out.println();
-            eigen = findEigenvector(lambda, p);
+            eigen = findEigenvector(lambda);
             System.out.println("Собственный вектор соответствующий максимальному собственному значению " + lambda + ":");
             eigen.print(false);
             System.out.println();
@@ -238,7 +238,7 @@ public class Main {
         return p;
     }
 
-    private static Vector findEigenvector(double lambda, double[] koefs) throws Exception {
+    private static Vector findEigenvector(double lambda) throws Exception {
         Vector result = new Vector(n);
         result.vector[n - 1] = 1;
         for (int i = n - 2; i >= 0; i--) {
