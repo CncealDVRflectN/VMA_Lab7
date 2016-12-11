@@ -49,6 +49,21 @@ public class Main {
             this.matrix = a;
         }
 
+        public void fillE(int n) {
+            lines = n;
+            columns = n;
+            matrix = new double[n][n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (i == j) {
+                        matrix[i][j] = 1;
+                    } else {
+                        matrix[i][j] = 0;
+                    }
+                }
+            }
+        }
+
         public void print() {
             for (double[] i : matrix) {
                 for (double j : i) {
@@ -160,6 +175,8 @@ public class Main {
     }
 
     private static Matrix A;
+    private static Vector eigen;
+    private static Matrix S;
     private static final int n = 5;
     private static final double lambda = 0.7808685214102775;
     private static final double det = 0.006954599817789778;
@@ -167,7 +184,6 @@ public class Main {
     public static void main(String[] args) {
         double[] p;
         double tr = 0;
-        Vector eigen;
         Vector r;
         try {
             A = new Matrix(n, n);
@@ -177,6 +193,8 @@ public class Main {
             A.print();
             System.out.println();
             p = methodDanilevsky();
+            A.fillDefault();
+            A = A.transpose().mul(A);
             System.out.println("Коэфициенты: ");
             for (int i = 0; i < n; i++) {
                 System.out.print("P" + (i + 1) + " = ");
@@ -192,7 +210,7 @@ public class Main {
             System.out.print("Невязка Pn: ");
             System.out.format("%e\n", det - p[n - 1]);
             System.out.println();
-            eigen = findEigenvector(lambda);
+            eigen = findEigenvector();
             System.out.println("Собственный вектор соответствующий максимальному собственному значению " + lambda + ":");
             eigen.print(false);
             System.out.println();
@@ -208,8 +226,19 @@ public class Main {
 
     private static double[] methodDanilevsky() throws Exception {
         Matrix B = new Matrix(n, n);
+        Matrix Snext = new Matrix(n, n);
+        S = new Matrix(n, n);
+        S.fillE(n);
         double[] p = new double[n];
         for (int k = n - 1; k > 0; k--) {
+            Snext.fillE(n);
+            Snext.matrix[k - 1][k - 1] = 1 / A.matrix[k][k - 1];
+            for(int i = 0; i < n; i++) {
+                if(i != k - 1) {
+                    Snext.matrix[k - 1][i] = -A.matrix[k][i] / A.matrix[k][k - 1];
+                }
+            }
+            S = S.mul(Snext);
             for (int i = 0; i < n; i++) {
                 B.matrix[i][k - 1] = A.matrix[i][k - 1] / A.matrix[k][k - 1];
                 for (int j = 0; j < n; j++) {
@@ -238,12 +267,12 @@ public class Main {
         return p;
     }
 
-    private static Vector findEigenvector(double lambda) throws Exception {
-        Vector result = new Vector(n);
-        result.vector[n - 1] = 1;
+    private static Vector findEigenvector() throws Exception {
+        Vector y = new Vector(n);
+        y.vector[n - 1] = 1;
         for (int i = n - 2; i >= 0; i--) {
-            result.vector[i] = lambda * result.vector[i + 1];
+            y.vector[i] = lambda * y.vector[i + 1];
         }
-        return result;
+        return S.mul(y);
     }
 }
